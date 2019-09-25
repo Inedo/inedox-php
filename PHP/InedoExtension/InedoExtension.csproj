@@ -73,6 +73,8 @@
     <Compile Include="Operations\Composer\ComposerOperationBase.cs" />
     <Compile Include="Operations\Composer\InstallPackagesOperation.cs" />
     <Compile Include="Operations\ExecutePHPUnitOperation.cs" />
+    <Compile Include="Operations\PHPOperationBase.cs" />
+    <Compile Include="UnitTestOutput.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
