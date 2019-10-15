@@ -1,4 +1,3 @@
-  
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -9,9 +8,6 @@ using Inedo.Extensibility;
 [assembly: AssemblyCompany("Inedo")]
 [assembly: AssemblyVersion("1.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-
-[assembly: AssemblyCompany("Inedo, LLC")]
-[assembly: AssemblyCopyright("Copyright © Inedo 2019")]
 
 [assembly: CLSCompliant(false)]
 [assembly: ComVisible(false)]
