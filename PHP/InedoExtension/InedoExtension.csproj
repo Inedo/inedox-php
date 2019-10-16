@@ -75,6 +75,9 @@
     <Compile Include="Operations\PHPOperationBase.cs" />
     <Compile Include="UnitTestOutput.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="VariableFunctions\DefaultComposerExePathVariableFunction.cs" />
+    <Compile Include="VariableFunctions\DefaultPHPUnitPathVariableFunction.cs" />
+    <Compile Include="VariableFunctions\DefaultPHPExePathVariableFunction.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

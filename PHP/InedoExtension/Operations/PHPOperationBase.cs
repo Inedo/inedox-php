@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Threading.Tasks;
 using Inedo.Agents;
 using Inedo.Documentation;
+using Inedo.ExecutionEngine.Executer;
 using Inedo.Extensibility;
 using Inedo.Extensibility.Operations;
 
@@ -28,7 +31,7 @@ namespace Inedo.Extensions.PHP.Operations
             var procExec = await context.Agent.GetServiceAsync<IRemoteProcessExecuter>();
             using (var proc = procExec.CreateProcess(new RemoteProcessStartInfo
             {
-                FileName = this.PHPExePath,
+                FileName = await this.GetPHPExePathAsync(context),
                 Arguments = args + AH.ConcatNE(" ", this.AdditionalArgs),
                 WorkingDirectory = context.WorkingDirectory
             }))
@@ -41,6 +44,37 @@ namespace Inedo.Extensions.PHP.Operations
 
                 return (output, proc.ExitCode ?? -1);
             }
+        }
+
+        private Task<string> GetPHPExePathAsync(IOperationExecutionContext context) =>
+            this.FindExecutableAsync(context, this.PHPExePath, "php", Environment.SpecialFolder.ProgramFiles, "PHP\\", ".exe");
+
+        protected async Task<string> FindExecutableAsync(IOperationExecutionContext context, string specifiedName, string defaultName, Environment.SpecialFolder specialFolder, string windowsPrefix = "", string windowsSuffix = "")
+        {
+            var fileOps = await context.Agent.GetServiceAsync<IFileOperationsExecuter>();
+
+            if (!string.IsNullOrEmpty(specifiedName))
+            {
+                if (!await fileOps.FileExistsAsync(specifiedName))
+                    throw new ExecutionFailureException($"Could not find the program '{defaultName}' at '{specifiedName}'. The path specified for this operation does not exist on the active server.");
+
+                return specifiedName;
+            }
+
+            var autoName = fileOps.CombinePath("/usr/bin/", defaultName);
+            var remoteMethod = await context.Agent.TryGetServiceAsync<IRemoteMethodExecuter>();
+            if (remoteMethod != null)
+                autoName = await remoteMethod.InvokeFuncAsync(FindRemotePath, specialFolder, windowsPrefix + defaultName + windowsSuffix);
+
+            if (await fileOps.FileExistsAsync(autoName))
+                return autoName;
+
+            throw new ExecutionFailureException($"Could not find the program '{defaultName}' at '{autoName}'. Define the correct path on this operation or as a variable on this server.");
+        }
+
+        private static string FindRemotePath(Environment.SpecialFolder specialFolder, string defaultName)
+        {
+            return Path.GetFullPath(Path.Combine(Environment.GetFolderPath(specialFolder), defaultName));
         }
     }
 }

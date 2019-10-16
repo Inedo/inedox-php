@@ -35,7 +35,7 @@ namespace Inedo.Extensions.PHP.Operations
 
             var testStart = DateTimeOffset.Now;
 
-            await this.ExecutePHPAsync(context, $"{this.PHPUnitPath} --log-junit {tmpXmlPath} {this.TestToRun}");
+            await this.ExecutePHPAsync(context, $"{await this.GetPHPUnitPathAsync(context)} --log-junit {tmpXmlPath} {this.TestToRun}");
             if (!await fileOps.FileExistsAsync(tmpXmlPath))
             {
                 this.LogWarning("PHPUnit did not generate an output XML file, therefore no tests were run. This can be caused if there are no test cases in the action's source directory, or the test file names do not end with \"Test\" (case-sensitive).");
@@ -71,6 +71,9 @@ namespace Inedo.Extensions.PHP.Operations
                 }
             }
         }
+
+        private Task<string> GetPHPUnitPathAsync(IOperationExecutionContext context) =>
+            this.FindExecutableAsync(context, this.PHPUnitPath, "phpunit", Environment.SpecialFolder.CommonProgramFiles, "..\\bin\\", ".phar");
 
         protected override ExtendedRichDescription GetDescription(IOperationConfiguration config)
         {

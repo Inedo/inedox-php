@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Inedo.Diagnostics;
@@ -16,10 +17,13 @@ namespace Inedo.Extensions.PHP.Operations.Composer
         [DefaultValue("$DefaultComposerExePath")]
         public string ComposerExePath { get; set; }
 
-        protected Task<(List<(bool error, string line)> output, int exitCode)> ExecuteComposeAsync(IOperationExecutionContext context, string args)
+        protected async Task<(List<(bool error, string line)> output, int exitCode)> ExecuteComposeAsync(IOperationExecutionContext context, string args)
         {
-            return this.ExecutePHPAsync(context, this.ComposerExePath + " " + args);
+            return await this.ExecutePHPAsync(context, await this.GetComposerExePathAsync(context) + " " + args);
         }
+
+        private Task<string> GetComposerExePathAsync(IOperationExecutionContext context) =>
+            this.FindExecutableAsync(context, this.ComposerExePath, "composer", Environment.SpecialFolder.CommonApplicationData, "ComposerSetup\\bin\\");
 
         protected void LogComposerError(List<(bool error, string line)> output, int exitCode)
         {
