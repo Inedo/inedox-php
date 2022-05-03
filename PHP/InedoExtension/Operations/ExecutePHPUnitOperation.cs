@@ -73,7 +73,7 @@ namespace Inedo.Extensions.PHP.Operations
         }
 
         private Task<string> GetPHPUnitPathAsync(IOperationExecutionContext context) =>
-            this.FindExecutableAsync(context, this.PHPUnitPath, "phpunit", Environment.SpecialFolder.CommonProgramFiles, "..\\bin\\", ".phar");
+            FindExecutableAsync(context, this.PHPUnitPath, "phpunit", Environment.SpecialFolder.CommonProgramFiles, "..\\bin\\", ".phar");
 
         protected override ExtendedRichDescription GetDescription(IOperationConfiguration config)
         {

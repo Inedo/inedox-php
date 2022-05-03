@@ -23,7 +23,7 @@ namespace Inedo.Extensions.PHP.Operations.Composer
         }
 
         private Task<string> GetComposerExePathAsync(IOperationExecutionContext context) =>
-            this.FindExecutableAsync(context, this.ComposerExePath, "composer", Environment.SpecialFolder.CommonApplicationData, "ComposerSetup\\bin\\");
+            FindExecutableAsync(context, this.ComposerExePath, "composer", Environment.SpecialFolder.CommonApplicationData, "ComposerSetup\\bin\\");
 
         protected void LogComposerError(List<(bool error, string line)> output, int exitCode)
         {

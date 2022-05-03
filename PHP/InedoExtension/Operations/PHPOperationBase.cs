@@ -29,27 +29,25 @@ namespace Inedo.Extensions.PHP.Operations
         {
             var output = new List<(bool error, string line)>();
             var procExec = await context.Agent.GetServiceAsync<IRemoteProcessExecuter>();
-            using (var proc = procExec.CreateProcess(new RemoteProcessStartInfo
+            using var proc = procExec.CreateProcess(new RemoteProcessStartInfo
             {
                 FileName = await this.GetPHPExePathAsync(context),
-                Arguments = args + AH.ConcatNE(" ", this.AdditionalArgs),
+                Arguments = args + " " + this.AdditionalArgs,
                 WorkingDirectory = context.WorkingDirectory
-            }))
-            {
-                proc.OutputDataReceived += (s, e) => output.Add((false, e.Data));
-                proc.ErrorDataReceived += (s, e) => output.Add((true, e.Data));
-                proc.Start();
+            });
 
-                await proc.WaitAsync(context.CancellationToken);
+            proc.OutputDataReceived += (s, e) => output.Add((false, e.Data));
+            proc.ErrorDataReceived += (s, e) => output.Add((true, e.Data));
+            proc.Start();
 
-                return (output, proc.ExitCode ?? -1);
-            }
+            await proc.WaitAsync(context.CancellationToken);
+
+            return (output, proc.ExitCode ?? -1);
         }
 
-        private Task<string> GetPHPExePathAsync(IOperationExecutionContext context) =>
-            this.FindExecutableAsync(context, this.PHPExePath, "php", Environment.SpecialFolder.ProgramFiles, "PHP\\", ".exe");
+        private Task<string> GetPHPExePathAsync(IOperationExecutionContext context) => FindExecutableAsync(context, this.PHPExePath, "php", Environment.SpecialFolder.ProgramFiles, "PHP\\", ".exe");
 
-        protected async Task<string> FindExecutableAsync(IOperationExecutionContext context, string specifiedName, string defaultName, Environment.SpecialFolder specialFolder, string windowsPrefix = "", string windowsSuffix = "")
+        protected static async Task<string> FindExecutableAsync(IOperationExecutionContext context, string specifiedName, string defaultName, Environment.SpecialFolder specialFolder, string windowsPrefix = "", string windowsSuffix = "")
         {
             var fileOps = await context.Agent.GetServiceAsync<IFileOperationsExecuter>();
 
